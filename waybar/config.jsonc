@@ -6,14 +6,15 @@
     "passthrough": false,
     "gtk-layer-shell": true,
     "height": 50,
-    "modules-left": ["clock","custom/weather","wlr/workspaces"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": ["network", "bluetooth", "temperature","custom/power_profile","battery","backlight","pulseaudio","pulseaudio#microphone","tray"],
+    "modules-left": ["clock", "custom/weather", "hyprland/workspaces"],
+    "modules-center": ["hyprland/window", "custom/media"],
+    
+    "modules-right": ["network", "temperature","backlight","pulseaudio","pulseaudio#microphone","tray"],
     "hyprland/window": {
         "format": "{}"
     },
 
-    "wlr/workspaces": {
+    "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "on-click": "activate",
@@ -30,23 +31,47 @@
             "10": []
         }
     },
-    
-    "custom/power_profile":{
-        //shows the current power profile and switches to next on click
-        "exec": "asusctl profile -p | sed s:'Active profile is'::",
-        "interval": 30,
-        "format": "󰈐{}", 
-        "on-click": "asusctl profile -n; pkill -SIGRTMIN+8 waybar",
-        "signal": 8
-    },
 
    "custom/weather" : {
-        //shows the current weather and forecast
         "tooltip" : true,
         "format" : "{}",
         "interval" : 30,
         "exec" : "~/.config/waybar/scripts/waybar-wttr.py",
         "return-type" : "json"
+    },
+
+    "cpu": {
+      "format": " {usage}%",  
+      "interval": 1,
+      "format-alt-click": "click",
+      "format-alt": " {usage:>2}% {icon0}{icon1}{icon2}{icon3}",
+      "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+    },
+
+    "memory": {
+      "interval": 1,
+      "format": "󰾆 {used:0.1f}GB",
+      "format-alt": "󰾆 {percentage}%",
+      "format-alt-click": "click",
+      "tooltip": true,
+      "tooltip-format": "{used:0.1f}GB/{total:0.1f}GB",
+      "on-click-right": "alacritty --title btop sh -c 'btop'"
+    },
+
+   "custom/media": {
+      "format": "{icon} {}",
+      "return-type": "json",
+      "max-length": 40,
+      "escape": true,
+      "format-icons": {
+      	"default": " ",
+        "spotify": " "
+      },
+      "on-click": "playerctl play-pause",
+      "on-click-right": "playerctl next",
+      "on-click-middle": "playerctl previous",
+      "exec": "$HOME/.config/waybar/scripts/mediaplayer.py --player spotify 2> /dev/null"
+      //"exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null"
     },
 
     "tray": {
@@ -66,19 +91,6 @@
         "on-scroll-up": "brightnessctl set 1%+",
         "on-scroll-down": "brightnessctl set 1%-",
         "min-length": 6
-    },
-
-    "battery": {
-        "states": {
-            "good": 95,
-            "warning": 30,
-            "critical": 20
-        },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
-        "format-alt": "{time} {icon}",
-        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
 
     "pulseaudio": {
@@ -109,30 +121,18 @@
         "on-scroll-down": "pamixer --default-source -d 5",
         "scroll-step": 5
     },
-    
-    "temperature": {
-        "thermal-zone": 1,
-        "format": "{temperatureF}°F ",
-        "critical-threshold": 80,
-        "format-critical": "{temperatureC}°C "
-    },
 
     "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
-        "format-wifi": "  {signalStrength}%",
-        "format-ethernet": "{ipaddr}/{cidr}",
-        "tooltip-format": "{essid} - {ifname} via {gwaddr}",
-        "format-linked": "{ifname} (No IP)",
-        "format-disconnected": "Disconnected ⚠",
-        "format-alt": "{ifname}:{essid} {ipaddr}/{cidr}"
-    },
-
-    "bluetooth": {
-	    "format": " {status}",
-	    "format-disabled": "", // an empty format will hide the module
-	    "format-connected": " {num_connections}",
-	    "tooltip-format": "{device_alias}",
-	    "tooltip-format-connected": " {device_enumerate}",
-	    "tooltip-format-enumerate-connected": "{device_alias}"
+      "format": "{ifname}",
+      "format-wifi": "{essid}   {bandwidthUpBytes}  {bandwidthDownBytes}",
+      "format-ethernet": "󰈀  {bandwidthUpBytes}  {bandwidthDownBytes}",
+      "format-disconnected": "", //An empty format will hide the module.
+      "tooltip-format": "{ipaddr}  {bandwidthUpBytes}  {bandwidthDownBytes}",
+      "format-linked": " {ifname} (No IP)",
+      "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+      "tooltip-format-ethernet": "{ifname} ",
+      "tooltip-format-disconnected": " Disconnected",
+      "max-length": 50,
+      "interval": 1
     }
 }
